@@ -7,11 +7,10 @@ from setuptools.command.test import test as TestCommand
 
 
 NAME = 'eip712-structs'
-VERSION = '1001.1.0'
+VERSION = '1001.1.1'
 
 install_requirements = [
     'eth-utils>=1.4.0',
-    'pysha3>=1.0.2',
 ]
 
 test_requirements = [
