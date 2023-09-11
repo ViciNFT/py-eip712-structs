@@ -22,7 +22,7 @@ def contract(w3):
     Note this expects the contract to be compiled already.
     This project's docker-compose config pulls a solc container to do this for you.
     """
-    base_path = 'tests/contracts/build/TestContract'
+    base_path = 'tests/contracts/TestContract'
     with open(f'{base_path}.abi', 'r') as f:
         abi = f.read()
     with open(f'{base_path}.bin', 'r') as f:
