@@ -333,6 +333,9 @@ class EIP712Struct(EIP712Type, metaclass=OrderedAttributesMeta):
     def __hash__(self):
         value_hashes = [hash(k) ^ hash(v) for k, v in self.values.items()]
         return functools.reduce(operator.xor, value_hashes, hash(self.type_name))
+    
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({str(self.data_dict())})"
 
 
 class StructTuple(NamedTuple):
