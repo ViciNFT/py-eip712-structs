@@ -2,7 +2,9 @@ import functools
 import json
 import operator
 import re
+import typing
 from collections import OrderedDict, defaultdict
+from hexbytes import HexBytes
 from typing import List, Tuple, NamedTuple
 
 from eth_utils.crypto import keccak
@@ -167,7 +169,9 @@ class EIP712Struct(EIP712Type, metaclass=OrderedAttributesMeta):
             raise ValueError('Domain must be provided, or eip712_structs.default_domain must be set.')
         return result
 
-    def to_message(self, domain: 'EIP712Struct' = None) -> dict:
+    def to_message(
+        self, domain: typing.Optional["EIP712Struct"] = None
+    ) -> dict:
         """Convert a struct into a dictionary suitable for messaging.
 
             Dictionary is of the form:
@@ -206,7 +210,9 @@ class EIP712Struct(EIP712Type, metaclass=OrderedAttributesMeta):
         message = self.to_message(domain)
         return json.dumps(message, cls=BytesJSONEncoder)
 
-    def signable_bytes(self, domain: 'EIP712Struct' = None) -> bytes:
+    def signable_bytes(
+        self, domain: typing.Optional[typing.Union["EIP712Struct", bytes, str]] = None
+    ) -> bytes:
         """Return a ``bytes`` object suitable for signing, as specified for EIP712.
 
         As per the spec, bytes are constructed as follows:
@@ -215,8 +221,26 @@ class EIP712Struct(EIP712Type, metaclass=OrderedAttributesMeta):
         :param domain: The domain to include in the hash bytes. If None, uses ``eip712_structs.default_domain``
         :return: The bytes object
         """
-        domain = self._assert_domain(domain)
-        result = b'\x19\x01' + domain.hash_struct() + self.hash_struct()
+
+        if isinstance(domain, str):
+            try:
+                if domain.startswith('0x'):
+                    domain = HexBytes(domain)
+                elif domain.startswith('{') and domain.endswith('}'):
+                    domain = json.loads(domain)
+                else:
+                    raise ValueError
+            except Exception as ex:
+                raise ValueError(f"Invalid EIP domain '{domain}'") from ex
+
+        if isinstance(domain, bytes):
+            if len(domain) != 32:
+                raise ValueError(f"Domain must be 32 bytes, but was {len(domain)}")
+            domain_hash = domain
+        else:
+            domain_hash: bytes = self._assert_domain(domain).hash_struct()
+        
+        result = b"\x19\x01" + domain_hash + self.hash_struct()
         return result
 
     @classmethod
