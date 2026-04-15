@@ -9,3 +9,6 @@ pip-compile --strip-extras \
     --index-url=http://localhost:9090 \
     --trusted-host=localhost \
     requirements.in
+
+echo "  === requirements.txt ==="
+diff -y ../eth-brownie/requirements.txt ./requirements.txt | grep "^[a-zA-Z]" | grep "|"
