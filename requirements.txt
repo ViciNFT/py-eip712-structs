@@ -115,8 +115,6 @@ pygments==2.20.0
     # via
     #   -r requirements.in
     #   pytest
-pysha3==1.0.2
-    # via -r requirements.in
 pytest==9.0.3
     # via -r requirements.in
 pyunormalize==17.0.0
